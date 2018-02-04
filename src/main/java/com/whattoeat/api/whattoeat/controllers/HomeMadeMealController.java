@@ -2,30 +2,65 @@ package com.whattoeat.api.whattoeat.controllers;
 
 import com.whattoeat.api.whattoeat.domain.HomeMadeMeal;
 import com.whattoeat.api.whattoeat.dto.HomeMadeMealDTO;
+import com.whattoeat.api.whattoeat.exception.NotFoundException;
 import com.whattoeat.api.whattoeat.mapper.HomeMadeMealMapper;
 import com.whattoeat.api.whattoeat.repository.HomeMadeMealRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-import java.util.UUID;
 
+@RequestMapping("/homemademeals")
 @RestController
 public class HomeMadeMealController {
 
     @Autowired
     private HomeMadeMealRepository repository;
 
-    @RequestMapping("/homemademeals")
-    public List<HomeMadeMealDTO> getAll(){
+    @Autowired
+    private HomeMadeMealMapper mapper;
 
-
-        HomeMadeMealMapper mapper = new HomeMadeMealMapper();
+    @RequestMapping(value = "", method = RequestMethod.GET)
+    public List<HomeMadeMealDTO> getAll() {
         List<HomeMadeMealDTO> list = new ArrayList<HomeMadeMealDTO>();
-        repository.findAll().forEach(m -> { list.add(mapper.toDTO(m)); });
+        repository.findAll().forEach(m -> {
+            list.add(mapper.toDTO(m));
+        });
         return list;
+    }
+
+    @RequestMapping(value = "/{mealId}", method = RequestMethod.GET)
+    public HomeMadeMealDTO getMeal(@PathVariable String mealId) {
+        HomeMadeMeal meal = repository.findOne(mealId);
+        if (meal == null) {
+            throw new NotFoundException();
+        }
+        return mapper.toDTO(meal);
+    }
+
+    @RequestMapping(value = "", method = RequestMethod.POST)
+    public void createMeal(@RequestBody HomeMadeMealDTO homeMadeMealDto){
+        HomeMadeMeal meal = mapper.createFromDTO(homeMadeMealDto);
+        repository.save(meal);
+    }
+
+    @RequestMapping(value = "", method = RequestMethod.PUT)
+    public void updateMeal(@RequestBody HomeMadeMealDTO homeMadeMealDto){
+        HomeMadeMeal meal = mapper.fromDTO(homeMadeMealDto);
+        HomeMadeMeal existingMeal = repository.findOne(meal.getId());
+        if(existingMeal == null){
+            throw new NotFoundException();
+        }
+        repository.save(meal);
+    }
+
+    @RequestMapping(value= "/{mealId}", method = RequestMethod.DELETE)
+    public void deleteMeal(@PathVariable String mealId){
+        HomeMadeMeal meal = repository.findOne(mealId);
+        if(meal == null){
+            throw new NotFoundException();
+        }
+        repository.delete(mealId);
     }
 }
