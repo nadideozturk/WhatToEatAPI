@@ -2,9 +2,7 @@ package com.whattoeat.api.whattoeat.domain;
 
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.experimental.Tolerate;
-
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
