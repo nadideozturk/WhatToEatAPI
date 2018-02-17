@@ -5,6 +5,7 @@ import com.whattoeat.api.whattoeat.dto.HomeMadeMealDTO;
 import com.whattoeat.api.whattoeat.exception.NotFoundException;
 import com.whattoeat.api.whattoeat.mapper.HomeMadeMealMapper;
 import com.whattoeat.api.whattoeat.repository.HomeMadeMealRepository;
+import com.whattoeat.api.whattoeat.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,10 +22,14 @@ public class HomeMadeMealController {
     @Autowired
     private HomeMadeMealMapper mapper;
 
+    @Autowired
+    private UserService userService;
+
     @RequestMapping(value = "", method = RequestMethod.GET)
     public List<HomeMadeMealDTO> getAll() {
+        String userId = userService.getUserID();
         List<HomeMadeMealDTO> list = new ArrayList<HomeMadeMealDTO>();
-        repository.findAll().forEach(m -> {
+        repository.findByUserId(userId).forEach(m -> {
             list.add(mapper.toDTO(m));
         });
         return list;
@@ -41,7 +46,9 @@ public class HomeMadeMealController {
 
     @RequestMapping(value = "", method = RequestMethod.POST)
     public void createMeal(@RequestBody HomeMadeMealDTO homeMadeMealDto){
+        String userId = userService.getUserID();
         HomeMadeMeal meal = mapper.createFromDTO(homeMadeMealDto);
+        meal.setUserId(userId);
         repository.save(meal);
     }
 
