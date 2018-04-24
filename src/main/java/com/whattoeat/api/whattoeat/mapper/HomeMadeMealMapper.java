@@ -15,6 +15,7 @@ public class HomeMadeMealMapper {
                 .name(meal.getName())
                 .photoUrl(meal.getPhotoUrl())
                 .durationInMinutes(meal.getDurationInMinutes())
+                .lastEatenDate(meal.getLastEatenDate())
                 .build();
     }
 
@@ -24,6 +25,7 @@ public class HomeMadeMealMapper {
                 .name(homeMadeMealDTO.getName())
                 .photoUrl(homeMadeMealDTO.getPhotoUrl())
                 .durationInMinutes(homeMadeMealDTO.getDurationInMinutes())
+                .lastEatenDate(homeMadeMealDTO.getLastEatenDate())
                 .build();
     }
     public HomeMadeMeal fromDTO(HomeMadeMealDTO homeMadeMealDTO){
@@ -32,6 +34,7 @@ public class HomeMadeMealMapper {
                 .name(homeMadeMealDTO.getName())
                 .photoUrl(homeMadeMealDTO.getPhotoUrl())
                 .durationInMinutes(homeMadeMealDTO.getDurationInMinutes())
+                .lastEatenDate(homeMadeMealDTO.getLastEatenDate())
                 .build();
     }
 }

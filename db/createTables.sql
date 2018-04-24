@@ -6,3 +6,5 @@ CREATE TABLE IF NOT EXISTS home_made_meal (
                  duration_in_minutes INT(11) DEFAULT NULL,
                  PRIMARY KEY (id)
                ) ENGINE=InnoDB
+
+ALTER TABLE home_made_meal ADD last_eaten_date DATE

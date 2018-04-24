@@ -1,10 +1,12 @@
 package com.whattoeat.api.whattoeat.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.Tolerate;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import java.util.Date;
 
 @Builder
 @Data
@@ -21,6 +23,9 @@ public class HomeMadeMeal {
     private String photoUrl;
 
     private Integer durationInMinutes;
+
+    @JsonFormat(pattern="yyyy-MM-dd")
+    private Date lastEatenDate;
 
     @Tolerate
     HomeMadeMeal() {}
