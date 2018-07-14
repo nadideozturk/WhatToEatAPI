@@ -28,7 +28,7 @@ public class HomeMadeMealController {
     @RequestMapping(value = "", method = RequestMethod.GET)
     public List<HomeMadeMealDTO> getAll() {
         String userId = userService.getUserID();
-        List<HomeMadeMealDTO> list = new ArrayList<HomeMadeMealDTO>();
+         List<HomeMadeMealDTO> list = new ArrayList<HomeMadeMealDTO>();
         repository.findByUserId(userId).forEach(m -> {
             list.add(mapper.toDTO(m));
         });
