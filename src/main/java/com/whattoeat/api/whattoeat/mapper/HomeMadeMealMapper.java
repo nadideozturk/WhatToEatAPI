@@ -16,6 +16,7 @@ public class HomeMadeMealMapper {
                 .photoUrl(meal.getPhotoUrl())
                 .durationInMinutes(meal.getDurationInMinutes())
                 .lastEatenDate(meal.getLastEatenDate())
+                .photoContent(" ")
                 .build();
     }
 

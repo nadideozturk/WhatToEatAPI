@@ -20,4 +20,6 @@ public class HomeMadeMealDTO {
 
     @JsonFormat(pattern="yyyy-MM-dd")
     private Date lastEatenDate;
+
+    private String photoContent;
 }
