@@ -5,8 +5,10 @@ import com.whattoeat.api.whattoeat.dto.HomeMadeMealDTO;
 import com.whattoeat.api.whattoeat.exception.NotFoundException;
 import com.whattoeat.api.whattoeat.mapper.HomeMadeMealMapper;
 import com.whattoeat.api.whattoeat.repository.HomeMadeMealRepository;
+import com.whattoeat.api.whattoeat.service.ImageUploadService;
 import com.whattoeat.api.whattoeat.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -24,6 +26,11 @@ public class HomeMadeMealController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private ImageUploadService imageUploadService;
+
+    private final String IMAGE_FOLDER_NAME = "whattoeat/homemademeals";
 
     @RequestMapping(value = "", method = RequestMethod.GET)
     public List<HomeMadeMealDTO> getAll() {
@@ -49,6 +56,10 @@ public class HomeMadeMealController {
         String userId = userService.getUserID();
         HomeMadeMeal meal = mapper.createFromDTO(homeMadeMealDto);
         meal.setUserId(userId);
+        if(!StringUtils.isEmpty(homeMadeMealDto.getPhotoContent())){
+            String imageUrl = imageUploadService.uploadImage(meal.getId(), homeMadeMealDto.getPhotoContent(), IMAGE_FOLDER_NAME);
+            meal.setPhotoUrl(imageUrl);
+        }
         repository.save(meal);
     }
 
