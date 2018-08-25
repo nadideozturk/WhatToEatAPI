@@ -1,3 +1,5 @@
+ALTER SCHEMA `WhatToEatLocal`  DEFAULT CHARACTER SET utf8;
+
 CREATE TABLE `user` (
   `id` varchar(36) NOT NULL,
   `name` varchar(45) NOT NULL,
