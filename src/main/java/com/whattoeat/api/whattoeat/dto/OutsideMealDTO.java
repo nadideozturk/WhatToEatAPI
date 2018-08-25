@@ -14,8 +14,6 @@ public class OutsideMealDTO {
 
     private String id;
 
-    private String userId;
-
     private String name;
 
     private String photoUrl;
