@@ -2,6 +2,7 @@ package com.whattoeat.api.whattoeat.controllers;
 
 import com.whattoeat.api.whattoeat.domain.HomeMadeMeal;
 import com.whattoeat.api.whattoeat.dto.HomeMadeMealDTO;
+import com.whattoeat.api.whattoeat.exception.AuthenticationException;
 import com.whattoeat.api.whattoeat.exception.NotFoundException;
 import com.whattoeat.api.whattoeat.mapper.HomeMadeMealMapper;
 import com.whattoeat.api.whattoeat.repository.HomeMadeMealRepository;
@@ -35,7 +36,7 @@ public class HomeMadeMealController {
     @RequestMapping(value = "", method = RequestMethod.GET)
     public List<HomeMadeMealDTO> getAll() {
         String userId = userService.getUserID();
-         List<HomeMadeMealDTO> list = new ArrayList<HomeMadeMealDTO>();
+        List<HomeMadeMealDTO> list = new ArrayList<HomeMadeMealDTO>();
         repository.findByUserId(userId).forEach(m -> {
             list.add(mapper.toDTO(m));
         });
@@ -44,9 +45,13 @@ public class HomeMadeMealController {
 
     @RequestMapping(value = "/{mealId}", method = RequestMethod.GET)
     public HomeMadeMealDTO getMeal(@PathVariable String mealId) {
+        String userId = userService.getUserID();
         HomeMadeMeal meal = repository.findOne(mealId);
         if (meal == null) {
             throw new NotFoundException();
+        }
+        if(!meal.getUserId().equals(userId)){
+            throw new AuthenticationException();
         }
         return mapper.toDTO(meal);
     }
@@ -65,10 +70,19 @@ public class HomeMadeMealController {
 
     @RequestMapping(value = "", method = RequestMethod.PUT)
     public void updateMeal(@RequestBody HomeMadeMealDTO homeMadeMealDto){
+        String userId = userService.getUserID();
         HomeMadeMeal meal = mapper.fromDTO(homeMadeMealDto);
         HomeMadeMeal existingMeal = repository.findOne(meal.getId());
         if(existingMeal == null){
             throw new NotFoundException();
+        }
+        if(!existingMeal.getUserId().equals(userId)){
+            throw new AuthenticationException();
+        }
+        meal.setUserId(userId);
+        if(!homeMadeMealDto.getPhotoContent().equals("Empty")){
+            String imageUrl = imageUploadService.uploadImage(meal.getId(), homeMadeMealDto.getPhotoContent(), IMAGE_FOLDER_NAME);
+            meal.setPhotoUrl(imageUrl);
         }
         repository.save(meal);
     }
