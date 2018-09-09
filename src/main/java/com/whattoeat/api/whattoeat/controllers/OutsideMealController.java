@@ -2,6 +2,7 @@ package com.whattoeat.api.whattoeat.controllers;
 
 import com.whattoeat.api.whattoeat.domain.OutsideMeal;
 import com.whattoeat.api.whattoeat.dto.OutsideMealDTO;
+import com.whattoeat.api.whattoeat.exception.AuthenticationException;
 import com.whattoeat.api.whattoeat.exception.NotFoundException;
 import com.whattoeat.api.whattoeat.mapper.OutsideMealMapper;
 import com.whattoeat.api.whattoeat.repository.OutsideMealRepository;
@@ -43,9 +44,13 @@ public class OutsideMealController {
 
     @RequestMapping(value = "/{mealId}", method = RequestMethod.GET)
     public OutsideMealDTO getMeal(@PathVariable String mealId) {
+        String userId = userService.getUserID();
         OutsideMeal meal = repository.findOne(mealId);
         if (meal == null) {
             throw new NotFoundException();
+        }
+        if(!meal.getUserId().equals(userId)){
+            throw new AuthenticationException();
         }
         return mapper.toDTO(meal);
     }
@@ -64,11 +69,20 @@ public class OutsideMealController {
     }
 
     @RequestMapping(value = "", method = RequestMethod.PUT)
-    public void updateMeal(@RequestBody OutsideMealDTO OutsideMealDto){
-        OutsideMeal meal = mapper.fromDTO(OutsideMealDto);
+    public void updateMeal(@RequestBody OutsideMealDTO outsideMealDto){
+        String userId = userService.getUserID();
+        OutsideMeal meal = mapper.fromDTO(outsideMealDto);
         OutsideMeal existingMeal = repository.findOne(meal.getId());
         if(existingMeal == null){
             throw new NotFoundException();
+        }
+        if(!existingMeal.getUserId().equals(userId)){
+            throw new AuthenticationException();
+        }
+        meal.setUserId(userId);
+        if(!outsideMealDto.getPhotoContent().equals("Empty")){
+            String imageUrl = imageUploadService.uploadImage(meal.getId(), outsideMealDto.getPhotoContent(), IMAGE_FOLDER_NAME);
+            meal.setPhotoUrl(imageUrl);
         }
         repository.save(meal);
     }
