@@ -50,18 +50,18 @@ public class HomeMadeMealController {
         if (meal == null) {
             throw new NotFoundException();
         }
-        if(!meal.getUserId().equals(userId)){
+        if (!meal.getUserId().equals(userId)) {
             throw new AuthenticationException();
         }
         return mapper.toDTO(meal);
     }
 
     @RequestMapping(value = "", method = RequestMethod.POST)
-    public void createMeal(@RequestBody HomeMadeMealDTO homeMadeMealDto){
+    public void createMeal(@RequestBody HomeMadeMealDTO homeMadeMealDto) {
         String userId = userService.getUserID();
         HomeMadeMeal meal = mapper.createFromDTO(homeMadeMealDto);
         meal.setUserId(userId);
-        if(!StringUtils.isEmpty(homeMadeMealDto.getPhotoContent())){
+        if (!StringUtils.isEmpty(homeMadeMealDto.getPhotoContent())) {
             String imageUrl = imageUploadService.uploadImage(meal.getId(), homeMadeMealDto.getPhotoContent(), IMAGE_FOLDER_NAME);
             meal.setPhotoUrl(imageUrl);
         }
@@ -69,30 +69,35 @@ public class HomeMadeMealController {
     }
 
     @RequestMapping(value = "", method = RequestMethod.PUT)
-    public void updateMeal(@RequestBody HomeMadeMealDTO homeMadeMealDto){
+    public void updateMeal(@RequestBody HomeMadeMealDTO homeMadeMealDto) {
         String userId = userService.getUserID();
         HomeMadeMeal meal = mapper.fromDTO(homeMadeMealDto);
         HomeMadeMeal existingMeal = repository.findOne(meal.getId());
-        if(existingMeal == null){
+        if (existingMeal == null) {
             throw new NotFoundException();
         }
-        if(!existingMeal.getUserId().equals(userId)){
+        if (!existingMeal.getUserId().equals(userId)) {
             throw new AuthenticationException();
         }
         meal.setUserId(userId);
-        if(!homeMadeMealDto.getPhotoContent().equals("Empty")){
+        if (!homeMadeMealDto.getPhotoContent().equals("Empty")) {
             String imageUrl = imageUploadService.uploadImage(meal.getId(), homeMadeMealDto.getPhotoContent(), IMAGE_FOLDER_NAME);
             meal.setPhotoUrl(imageUrl);
         }
         repository.save(meal);
     }
 
-    @RequestMapping(value= "/{mealId}", method = RequestMethod.DELETE)
-    public void deleteMeal(@PathVariable String mealId){
+    @RequestMapping(value = "/{mealId}", method = RequestMethod.DELETE)
+    public void deleteMeal(@PathVariable String mealId) {
         HomeMadeMeal meal = repository.findOne(mealId);
-        if(meal == null){
+        String userId = userService.getUserID();
+        if (meal == null) {
             throw new NotFoundException();
         }
+        if (!meal.getUserId().equals(userId)) {
+            throw new AuthenticationException();
+        }
+        imageUploadService.deleteImage(mealId, IMAGE_FOLDER_NAME);
         repository.delete(mealId);
     }
 }

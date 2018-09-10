@@ -90,9 +90,14 @@ public class OutsideMealController {
     @RequestMapping(value= "/{mealId}", method = RequestMethod.DELETE)
     public void deleteMeal(@PathVariable String mealId){
         OutsideMeal meal = repository.findOne(mealId);
+        String userId = userService.getUserID();
         if(meal == null){
             throw new NotFoundException();
         }
+        if(!meal.getUserId().equals(userId)){
+            throw new AuthenticationException();
+        }
+        imageUploadService.deleteImage(mealId,IMAGE_FOLDER_NAME);
         repository.delete(mealId);
     }
     

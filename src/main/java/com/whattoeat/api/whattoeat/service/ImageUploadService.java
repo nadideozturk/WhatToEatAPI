@@ -1,10 +1,12 @@
 package com.whattoeat.api.whattoeat.service;
 
+import com.cloudinary.api.ApiResponse;
 import com.cloudinary.utils.ObjectUtils;
 import org.springframework.stereotype.Service;
 import com.cloudinary.Cloudinary;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
 
 
@@ -20,7 +22,7 @@ public class ImageUploadService {
                 "api_secret", "6teLVFpaSPGGoY4-NZeqLjDSjsk"));
     }
 
-    public String uploadImage(String imageId, String imageContent, String folderName){
+    public String uploadImage(String imageId, String imageContent, String folderName) {
         Map options = ObjectUtils.asMap(
                 "folder", folderName,
                 "public_id", imageId);
@@ -34,5 +36,17 @@ public class ImageUploadService {
             throw new RuntimeException(e);
         }
         return result.get("secure_url").toString();
+    }
+
+    public void deleteImage(String imageId, String folderName) {
+        ApiResponse response = null;
+        try {
+            response = cloudinary.api().deleteResources(
+                    Collections.singletonList(folderName + "/" + imageId),
+                    ObjectUtils.emptyMap()
+            );
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
