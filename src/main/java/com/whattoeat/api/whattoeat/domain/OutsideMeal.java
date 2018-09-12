@@ -29,6 +29,8 @@ public class OutsideMeal {
 
     private String restaurantName;
 
+    private String catId;
+
     @Tolerate
     OutsideMeal() {}
 }

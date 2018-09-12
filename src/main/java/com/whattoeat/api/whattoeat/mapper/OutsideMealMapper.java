@@ -17,27 +17,30 @@ public class OutsideMealMapper {
                 .lastEatenDate(meal.getLastEatenDate())
                 .restaurantName(meal.getRestaurantName())
                 .photoContent(" ")
+                .catId(meal.getCatId())
                 .build();
     }
 
-    public OutsideMeal createFromDTO(OutsideMealDTO OutsideMealDTO){
+    public OutsideMeal createFromDTO(OutsideMealDTO outsideMealDTO){
         return OutsideMeal.builder()
                 .id(UUID.randomUUID().toString())
-                .name(OutsideMealDTO.getName())
-                .photoUrl(OutsideMealDTO.getPhotoUrl())
-                .price(OutsideMealDTO.getPrice())
-                .lastEatenDate(OutsideMealDTO.getLastEatenDate())
-                .restaurantName(OutsideMealDTO.getRestaurantName())
+                .name(outsideMealDTO.getName())
+                .photoUrl(outsideMealDTO.getPhotoUrl())
+                .price(outsideMealDTO.getPrice())
+                .lastEatenDate(outsideMealDTO.getLastEatenDate())
+                .restaurantName(outsideMealDTO.getRestaurantName())
+                .catId(outsideMealDTO.getCatId())
                 .build();
     }
-    public OutsideMeal fromDTO(OutsideMealDTO OutsideMealDTO){
+    public OutsideMeal fromDTO(OutsideMealDTO outsideMealDTO){
         return OutsideMeal.builder()
-                .id(OutsideMealDTO.getId())
-                .name(OutsideMealDTO.getName())
-                .photoUrl(OutsideMealDTO.getPhotoUrl())
-                .price(OutsideMealDTO.getPrice())
-                .lastEatenDate(OutsideMealDTO.getLastEatenDate())
-                .restaurantName(OutsideMealDTO.getRestaurantName())
+                .id(outsideMealDTO.getId())
+                .name(outsideMealDTO.getName())
+                .photoUrl(outsideMealDTO.getPhotoUrl())
+                .price(outsideMealDTO.getPrice())
+                .lastEatenDate(outsideMealDTO.getLastEatenDate())
+                .restaurantName(outsideMealDTO.getRestaurantName())
+                .catId(outsideMealDTO.getCatId())
                 .build();
     }
 }

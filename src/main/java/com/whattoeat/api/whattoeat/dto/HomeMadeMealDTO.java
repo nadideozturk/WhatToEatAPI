@@ -22,4 +22,6 @@ public class HomeMadeMealDTO {
     private Date lastEatenDate;
 
     private String photoContent;
+
+    private String catId;
 }

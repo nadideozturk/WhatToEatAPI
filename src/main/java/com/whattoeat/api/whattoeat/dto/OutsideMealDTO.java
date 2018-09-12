@@ -26,4 +26,6 @@ public class OutsideMealDTO {
     private Date lastEatenDate;
 
     private String restaurantName;
+
+    private String catId;
 }

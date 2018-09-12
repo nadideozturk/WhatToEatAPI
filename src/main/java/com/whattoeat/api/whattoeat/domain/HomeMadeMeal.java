@@ -27,6 +27,8 @@ public class HomeMadeMeal {
     @JsonFormat(pattern="yyyy-MM-dd")
     private Date lastEatenDate;
 
+    private String catId;
+
     @Tolerate
     HomeMadeMeal() {}
 }
