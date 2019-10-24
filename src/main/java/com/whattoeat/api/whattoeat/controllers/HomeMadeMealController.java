@@ -13,6 +13,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 @RequestMapping("/homemademeals")
@@ -40,6 +42,7 @@ public class HomeMadeMealController {
         repository.findByUserId(userId).forEach(m -> {
             list.add(mapper.toDTO(m));
         });
+        list.sort(Comparator.comparing(HomeMadeMealDTO::getLastEatenDate));
         return list;
     }
 
@@ -64,6 +67,9 @@ public class HomeMadeMealController {
         if (!StringUtils.isEmpty(homeMadeMealDto.getPhotoContent())) {
             String imageUrl = imageUploadService.uploadImage(meal.getId(), homeMadeMealDto.getPhotoContent(), IMAGE_FOLDER_NAME);
             meal.setPhotoUrl(imageUrl);
+        }
+        if (meal.getLastEatenDate() == null) {
+            meal.setLastEatenDate(new Date());
         }
         repository.save(meal);
     }
