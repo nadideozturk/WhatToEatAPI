@@ -42,7 +42,7 @@ public class HomeMadeMealController {
         repository.findByUserId(userId).forEach(m -> {
             list.add(mapper.toDTO(m));
         });
-        list.sort(Comparator.comparing(HomeMadeMealDTO::getLastEatenDate));
+        list.sort(Comparator.comparing(HomeMadeMealDTO::getLastEatenDate).reversed());
         return list;
     }
 
