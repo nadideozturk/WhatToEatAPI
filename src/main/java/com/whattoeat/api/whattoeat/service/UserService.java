@@ -15,10 +15,14 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
+import java.util.Arrays;
+import java.util.List;
 
 @Service
 public class UserService {
-    private final String CLIENT_ID = "8792279534-3tv6nsf4apfh8ufuj1s43k7a2dqa6rnb.apps.googleusercontent.com";
+    private static final String CLIENT_ID_IOS = "8792279534-3tv6nsf4apfh8ufuj1s43k7a2dqa6rnb.apps.googleusercontent.com";
+    private static final String CLIENT_ID_ANDROID = "8792279534-j6dcrb38tjco1231a39dtt4ea21ga2oo.apps.googleusercontent.com";
+    private static final List<String> CLIENT_ID_LIST = Arrays.asList(CLIENT_ID_IOS, CLIENT_ID_ANDROID);
 
     public String getUserID(){
         final ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder
@@ -44,7 +48,7 @@ public class UserService {
 
         final JacksonFactory jacksonFactory = new JacksonFactory();
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), jacksonFactory)
-                .setAudience(Collections.singletonList(CLIENT_ID))
+                .setAudience(CLIENT_ID_LIST)
                 .build();
 
         GoogleIdToken idToken = verifier.verify(idTokenString);
@@ -61,7 +65,7 @@ public class UserService {
 
             return userId;
         } else {
-            // System.out.println("Invalid ID token.");
+            System.out.println("Invalid ID token.");
             return null;
         }
     }
