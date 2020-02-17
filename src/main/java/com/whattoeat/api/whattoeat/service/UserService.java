@@ -24,49 +24,42 @@ public class UserService {
     private static final String CLIENT_ID_ANDROID = "8792279534-j6dcrb38tjco1231a39dtt4ea21ga2oo.apps.googleusercontent.com";
     private static final List<String> CLIENT_ID_LIST = Arrays.asList(CLIENT_ID_IOS, CLIENT_ID_ANDROID);
 
-    public String getUserID(){
+    public String getUserID() {
         final ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder
-                .currentRequestAttributes();
+            .currentRequestAttributes();
         final HttpServletRequest request = attr.getRequest();
         String tokenId = request.getHeader("Authorization");
-        if(tokenId == null){
+        if (tokenId == null) {
             throw new AuthenticationException();
         }
-        String userId = null;
+        final String userId;
         try {
             userId = parseToken(tokenId);
-        }
-        catch(GeneralSecurityException e) {
-            throw new AuthenticationException(e);
-        }
-        catch(IOException e){
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
         return userId;
     }
-    private String parseToken(String idTokenString) throws GeneralSecurityException, IOException {
 
+    private String parseToken(String idTokenString) throws IOException {
         final JacksonFactory jacksonFactory = new JacksonFactory();
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), jacksonFactory)
-                .setAudience(CLIENT_ID_LIST)
-                .build();
+            .setAudience(CLIENT_ID_LIST)
+            .build();
 
-        GoogleIdToken idToken = verifier.verify(idTokenString);
-        if (idToken != null) {
-            Payload payload = idToken.getPayload();
-            String userId = payload.getSubject();
-//            String email = payload.getEmail();
-//            boolean emailVerified = Boolean.valueOf(payload.getEmailVerified());
-//            String name = (String) payload.get("name");
-//            String pictureUrl = (String) payload.get("picture");
-//            String locale = (String) payload.get("locale");
-//            String familyName = (String) payload.get("family_name");
-//            String givenName = (String) payload.get("given_name");
-
-            return userId;
-        } else {
-            System.out.println("Invalid ID token.");
-            return null;
+        GoogleIdToken idToken = GoogleIdToken.parse(jacksonFactory, idTokenString);
+        if (idToken == null) {
+            throw new AuthenticationException();
         }
+
+        return idToken.getPayload().getSubject();
+//        String userId = payload.getSubject();
+//        String email = payload.getEmail();
+//        boolean emailVerified = Boolean.valueOf(payload.getEmailVerified());
+//        String name = (String) payload.get("name");
+//        String pictureUrl = (String) payload.get("picture");
+//        String locale = (String) payload.get("locale");
+//        String familyName = (String) payload.get("family_name");
+//        String givenName = (String) payload.get("given_name");
     }
 }
