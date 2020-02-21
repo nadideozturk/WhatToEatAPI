@@ -24,4 +24,6 @@ public class HomeMadeMealDTO {
     private String photoContent;
 
     private String catId;
+
+    private String recipe;
 }

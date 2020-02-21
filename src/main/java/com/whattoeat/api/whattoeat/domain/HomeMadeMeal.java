@@ -29,6 +29,8 @@ public class HomeMadeMeal {
 
     private String catId;
 
+    private String recipe;
+
     @Tolerate
     HomeMadeMeal() {}
 }
