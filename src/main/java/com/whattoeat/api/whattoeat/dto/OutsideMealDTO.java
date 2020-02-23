@@ -2,10 +2,12 @@ package com.whattoeat.api.whattoeat.dto;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.whattoeat.api.whattoeat.domain.Tag;
 import lombok.Builder;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.Set;
 
 
 @Builder
@@ -28,4 +30,6 @@ public class OutsideMealDTO {
     private String restaurantName;
 
     private String catId;
+
+    private Set<Tag> tags;
 }

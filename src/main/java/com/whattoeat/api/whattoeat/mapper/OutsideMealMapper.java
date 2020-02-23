@@ -18,6 +18,7 @@ public class OutsideMealMapper {
                 .restaurantName(meal.getRestaurantName())
                 .photoContent(" ")
                 .catId(meal.getCatId())
+                .tags(meal.getTags())
                 .build();
     }
 
@@ -30,6 +31,7 @@ public class OutsideMealMapper {
                 .lastEatenDate(outsideMealDTO.getLastEatenDate())
                 .restaurantName(outsideMealDTO.getRestaurantName())
                 .catId(outsideMealDTO.getCatId())
+                .tags(outsideMealDTO.getTags())
                 .build();
     }
     public OutsideMeal fromDTO(OutsideMealDTO outsideMealDTO){
@@ -41,6 +43,7 @@ public class OutsideMealMapper {
                 .lastEatenDate(outsideMealDTO.getLastEatenDate())
                 .restaurantName(outsideMealDTO.getRestaurantName())
                 .catId(outsideMealDTO.getCatId())
+                .tags(outsideMealDTO.getTags())
                 .build();
     }
 }
