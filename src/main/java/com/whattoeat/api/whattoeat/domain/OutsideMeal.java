@@ -40,6 +40,7 @@ public class OutsideMeal {
             joinColumns = { @JoinColumn(name="meal_id", nullable = false, updatable = false) },
             inverseJoinColumns = { @JoinColumn(name="tag_id", nullable = false, updatable = false)})
     @EqualsAndHashCode.Exclude
+    @Builder.Default
     private Set<Tag> tags = new HashSet<>();
 
     @Tolerate

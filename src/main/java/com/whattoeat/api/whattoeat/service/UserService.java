@@ -1,28 +1,30 @@
 package com.whattoeat.api.whattoeat.service;
 
-
-import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.http.HttpStatusCodes;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.whattoeat.api.whattoeat.exception.AuthenticationException;
+import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.util.Collections;
-import java.util.Arrays;
-import java.util.List;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class UserService {
-    private static final String CLIENT_ID_IOS = "8792279534-3tv6nsf4apfh8ufuj1s43k7a2dqa6rnb.apps.googleusercontent.com";
-    private static final String CLIENT_ID_ANDROID = "8792279534-j6dcrb38tjco1231a39dtt4ea21ga2oo.apps.googleusercontent.com";
-    private static final List<String> CLIENT_ID_LIST = Arrays.asList(CLIENT_ID_IOS, CLIENT_ID_ANDROID);
+
+    private static final String FB_ACCESS_TOKEN_RESOLVER_URL = "https://graph.facebook.com/me?access_token=";
+    private static final Pattern FB_USER_ID_FIELD = Pattern.compile("id\":\"(\\d+)\"");
 
     public String getUserID() {
         final ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder
@@ -41,25 +43,56 @@ public class UserService {
         return userId;
     }
 
-    private String parseToken(String idTokenString) throws IOException {
-        final JacksonFactory jacksonFactory = new JacksonFactory();
-        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), jacksonFactory)
-            .setAudience(CLIENT_ID_LIST)
-            .build();
+    private String parseToken(String token) throws IOException {
+        if (token.indexOf('.') < 0) {
+            return parseFacebookLoginToken(token);
+        } else {
+            return parseGoogleLoginToken(token);
+        }
+    }
 
-        GoogleIdToken idToken = GoogleIdToken.parse(jacksonFactory, idTokenString);
+    private String parseFacebookLoginToken(String accessToken) {
+        try {
+            final HttpClient client = HttpClientBuilder.create().build();
+            final HttpGet request = new HttpGet(FB_ACCESS_TOKEN_RESOLVER_URL + accessToken);
+            final HttpResponse response = client.execute(request);
+
+            int responseCode = response.getStatusLine().getStatusCode();
+            if (responseCode != HttpStatusCodes.STATUS_CODE_OK) {
+                System.out.println(
+                    String.format(
+                        "Received responseCode=%s for token=%s from FB",
+                        responseCode,
+                        accessToken));
+                throw new AuthenticationException();
+            }
+
+            final InputStream inputStream = response.getEntity().getContent();
+            final String responseBody = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
+            final Matcher matcher = FB_USER_ID_FIELD.matcher(responseBody);
+            if (matcher.find()) {
+                return matcher.group(1);
+            }
+
+            System.out.println(
+                String.format(
+                    "Unable to find id field from responseBody=[%s] for accessToken=[%s]",
+                    responseBody,
+                    accessToken));
+            throw new AuthenticationException();
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String parseGoogleLoginToken(String jwtToken) throws IOException {
+        final JacksonFactory jacksonFactory = new JacksonFactory();
+
+        GoogleIdToken idToken = GoogleIdToken.parse(jacksonFactory, jwtToken);
         if (idToken == null) {
             throw new AuthenticationException();
         }
 
         return idToken.getPayload().getSubject();
-//        String userId = payload.getSubject();
-//        String email = payload.getEmail();
-//        boolean emailVerified = Boolean.valueOf(payload.getEmailVerified());
-//        String name = (String) payload.get("name");
-//        String pictureUrl = (String) payload.get("picture");
-//        String locale = (String) payload.get("locale");
-//        String familyName = (String) payload.get("family_name");
-//        String givenName = (String) payload.get("given_name");
     }
 }
