@@ -13,6 +13,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @RequestMapping("/outsidemeals")
@@ -39,6 +40,7 @@ public class OutsideMealController {
         repository.findByUserId(userId).forEach(m -> {
             list.add(mapper.toDTO(m));
         });
+        list.sort(Comparator.comparing(OutsideMealDTO::getLastEatenDate).reversed());
         return list;
     }
 
