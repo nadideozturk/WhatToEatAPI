@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 @RequestMapping("/outsidemeals")
@@ -62,10 +63,12 @@ public class OutsideMealController {
         String userId = userService.getUserID();
         OutsideMeal meal = mapper.createFromDTO(outsideMealDto);
         meal.setUserId(userId);
-        //meal.setUserId("117849870156787801016");
         if(!StringUtils.isEmpty(outsideMealDto.getPhotoContent())){
             String imageUrl = imageUploadService.uploadImage(meal.getId(), outsideMealDto.getPhotoContent(), IMAGE_FOLDER_NAME);
             meal.setPhotoUrl(imageUrl);
+        }
+        if (meal.getLastEatenDate() == null) {
+            meal.setLastEatenDate(new Date());
         }
         repository.save(meal);
     }
