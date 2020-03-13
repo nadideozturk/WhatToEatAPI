@@ -3,6 +3,7 @@ package com.whattoeat.api.whattoeat.service;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.http.HttpStatusCodes;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.whattoeat.api.whattoeat.dto.UserDTO;
 import com.whattoeat.api.whattoeat.exception.AuthenticationException;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
@@ -87,12 +88,53 @@ public class UserService {
 
     private String parseGoogleLoginToken(String jwtToken) throws IOException {
         final JacksonFactory jacksonFactory = new JacksonFactory();
-
         GoogleIdToken idToken = GoogleIdToken.parse(jacksonFactory, jwtToken);
         if (idToken == null) {
             throw new AuthenticationException();
         }
 
         return idToken.getPayload().getSubject();
+    }
+
+    public UserDTO getUser() {
+        // TODO refactor for Google vs Facebook login
+        final ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder
+                .currentRequestAttributes();
+        final HttpServletRequest request = attr.getRequest();
+        String tokenId = request.getHeader("Authorization");
+        if (tokenId == null) {
+            throw new AuthenticationException();
+        }
+        final UserDTO userDTO;
+        try {
+            userDTO = parseTokenUserDetails(tokenId);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return userDTO;
+    }
+
+    private UserDTO parseTokenUserDetails(String idTokenString) throws IOException {
+        // TODO refactor for Google vs Facebook login
+        final JacksonFactory jacksonFactory = new JacksonFactory();
+
+        GoogleIdToken idToken = GoogleIdToken.parse(jacksonFactory, idTokenString);
+        if (idToken == null) {
+            throw new AuthenticationException();
+        }
+
+        String userId = idToken.getPayload().getSubject();
+        //String email = idToken.getPayload().getEmail();
+        //boolean emailVerified = Boolean.valueOf(idToken.getPayload().getEmailVerified());
+        //String name = (String) idToken.getPayload().get("name");
+        String pictureUrl = (String) idToken.getPayload().get("picture");
+        //String locale = (String) idToken.getPayload().get("locale");
+        //String familyName = (String) idToken.getPayload().get("family_name");
+        //String givenName = (String) idToken.getPayload().get("given_name");
+        UserDTO userDTO = UserDTO.builder()
+                .photoUrl(pictureUrl)
+                .id(userId)
+                .build();
+        return userDTO;
     }
 }
