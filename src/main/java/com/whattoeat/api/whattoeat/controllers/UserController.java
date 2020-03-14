@@ -42,11 +42,12 @@ public class UserController {
     }
 
     @RequestMapping(value = "/preferences", method = RequestMethod.PUT)
-    public UserDTO setUserPreferences(@RequestBody UserDTO userDTO){
-        String userId = userService.getUserID();
-        User user = mapper.fromDTO(userDTO, userId);
+    public UserDTO setUserPreferences(@RequestBody UserDTO userPreferences){
+        UserDTO userDto = userService.getUser();
+        userDto.setPrivate(userPreferences.isPrivate());
+        User user = mapper.fromDTO(userDto);
         repository.save(user);
-        return userDTO;
+        return userDto;
     }
 
 }

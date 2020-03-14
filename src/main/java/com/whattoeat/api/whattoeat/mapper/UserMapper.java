@@ -13,9 +13,9 @@ public class UserMapper {
                 .build();
     }
 
-    public User fromDTO(UserDTO userDTO, String userId){
+    public User fromDTO(UserDTO userDTO){
         return User.builder()
-                .id(userId)
+                .id(userDTO.getId())
                 .isPrivate(userDTO.isPrivate())
                 .build();
     }
