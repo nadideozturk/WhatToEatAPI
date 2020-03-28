@@ -33,7 +33,7 @@ public class UserController {
             throw new NotFoundException();
         }
         User user = repository.findOne(userDTO.getId());
-        if(user == null){
+        if (user == null) {
             userDTO.setPrivate(false);
         } else {
             userDTO.setPrivate(user.isPrivate());
@@ -42,9 +42,12 @@ public class UserController {
     }
 
     @RequestMapping(value = "/preferences", method = RequestMethod.PUT)
-    public UserDTO setUserPreferences(@RequestBody UserDTO userPreferences){
+    public UserDTO setUserPreferences(@RequestBody UserDTO userPreferences) {
         UserDTO userDto = userService.getUser();
         userDto.setPrivate(userPreferences.isPrivate());
+        userDto.setCity(userPreferences.getCity());
+        userDto.setCountry(userPreferences.getCountry());
+        // TODO add new fields here for merging the fields between token userDTO and request body user DTO
         User user = mapper.fromDTO(userDto);
         repository.save(user);
         return userDto;

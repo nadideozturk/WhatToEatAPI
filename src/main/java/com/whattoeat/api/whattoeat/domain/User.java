@@ -16,6 +16,10 @@ public class User {
 
     private boolean isPrivate;
 
+    private String city;
+
+    private String country;
+
     @Tolerate
     User() {}
 }

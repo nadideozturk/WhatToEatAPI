@@ -10,6 +10,8 @@ public class UserMapper {
         return UserDTO.builder()
                 .id(user.getId())
                 .isPrivate(user.isPrivate())
+                .city(user.getCity())
+                .country(user.getCountry())
                 .build();
     }
 
@@ -17,6 +19,8 @@ public class UserMapper {
         return User.builder()
                 .id(userDTO.getId())
                 .isPrivate(userDTO.isPrivate())
+                .city(userDTO.getCity())
+                .country(userDTO.getCountry())
                 .build();
     }
 }

@@ -13,4 +13,8 @@ public class UserDTO {
     private boolean isPrivate;
 
     private String photoUrl;
+
+    private String city;
+
+    private String country;
 }
