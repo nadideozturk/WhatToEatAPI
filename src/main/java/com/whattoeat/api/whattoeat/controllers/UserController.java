@@ -36,7 +36,10 @@ public class UserController {
         if (user == null) {
             userDTO.setPrivate(false);
         } else {
+            // TODO refactor to mapper
             userDTO.setPrivate(user.isPrivate());
+            userDTO.setCountry(user.getCountry());
+            userDTO.setCity(user.getCity());
         }
         return userDTO;
     }
