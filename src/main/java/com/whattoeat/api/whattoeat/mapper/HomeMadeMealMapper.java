@@ -20,6 +20,8 @@ public class HomeMadeMealMapper {
                 .catId(meal.getCatId())
                 .recipe(meal.getRecipe())
                 .tags(meal.getTags())
+                .city(meal.getCity())
+                .country(meal.getCountry())
                 .build();
     }
 
@@ -33,6 +35,8 @@ public class HomeMadeMealMapper {
                 .catId(homeMadeMealDTO.getCatId())
                 .recipe(homeMadeMealDTO.getRecipe())
                 .tags(homeMadeMealDTO.getTags())
+                .city(homeMadeMealDTO.getCity())
+                .country(homeMadeMealDTO.getCountry())
                 .build();
     }
     public HomeMadeMeal fromDTO(HomeMadeMealDTO homeMadeMealDTO){
@@ -45,6 +49,8 @@ public class HomeMadeMealMapper {
                 .catId(homeMadeMealDTO.getCatId())
                 .recipe(homeMadeMealDTO.getRecipe())
                 .tags(homeMadeMealDTO.getTags())
+                .city(homeMadeMealDTO.getCity())
+                .country(homeMadeMealDTO.getCountry())
                 .build();
     }
 }

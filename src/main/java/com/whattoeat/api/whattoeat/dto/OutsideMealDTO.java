@@ -32,4 +32,8 @@ public class OutsideMealDTO {
     private String catId;
 
     private Set<Tag> tags;
+
+    private String city;
+
+    private String country;
 }

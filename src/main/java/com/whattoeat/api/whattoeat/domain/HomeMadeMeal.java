@@ -43,6 +43,10 @@ public class HomeMadeMeal {
     @Builder.Default
     private Set<Tag> tags = new HashSet<>();
 
+    private String city;
+
+    private String country;
+
     @Tolerate
     HomeMadeMeal() {}
 }

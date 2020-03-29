@@ -30,4 +30,8 @@ public class HomeMadeMealDTO {
     private String recipe;
 
     private Set<Tag> tags;
+
+    private String city;
+
+    private String country;
 }
