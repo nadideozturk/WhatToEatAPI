@@ -1,9 +1,12 @@
 package com.whattoeat.api.whattoeat.controllers;
 
+import com.google.common.base.Strings;
 import com.whattoeat.api.whattoeat.domain.User;
 import com.whattoeat.api.whattoeat.dto.UserDTO;
 import com.whattoeat.api.whattoeat.exception.NotFoundException;
 import com.whattoeat.api.whattoeat.mapper.UserMapper;
+import com.whattoeat.api.whattoeat.repository.HomeMadeMealRepository;
+import com.whattoeat.api.whattoeat.repository.OutsideMealRepository;
 import com.whattoeat.api.whattoeat.repository.UserRepository;
 import com.whattoeat.api.whattoeat.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +24,13 @@ public class UserController {
     private UserService userService;
 
     @Autowired
-    private UserRepository repository;
+    private UserRepository userRepository;
+
+    @Autowired
+    private HomeMadeMealRepository homeMadeMealRepository;
+
+    @Autowired
+    private OutsideMealRepository outsideMealRepository;
 
     @Autowired
     private UserMapper mapper;
@@ -32,7 +41,7 @@ public class UserController {
         if (userDTO == null) {
             throw new NotFoundException();
         }
-        User user = repository.findOne(userDTO.getId());
+        User user = userRepository.findOne(userDTO.getId());
         if (user == null) {
             userDTO.setPrivate(false);
         } else {
@@ -52,7 +61,31 @@ public class UserController {
         userDto.setCountry(userPreferences.getCountry());
         // TODO add new fields here for merging the fields between token userDTO and request body user DTO
         User user = mapper.fromDTO(userDto);
-        repository.save(user);
+        userRepository.save(user);
+
+        if (!Strings.isNullOrEmpty(userPreferences.getCity()) &&
+                !Strings.isNullOrEmpty(userPreferences.getCountry())) {
+            homeMadeMealRepository
+                    .findByUserId(userDto.getId())
+                    .stream()
+                    .filter(m -> Strings.isNullOrEmpty(m.getCountry()) || Strings.isNullOrEmpty(m.getCity()))
+                    .forEach(m -> {
+                        m.setCountry(userPreferences.getCountry());
+                        m.setCity(userPreferences.getCity());
+                        homeMadeMealRepository.save(m);
+                    });
+
+            outsideMealRepository
+                    .findByUserId(userDto.getId())
+                    .stream()
+                    .filter(m -> Strings.isNullOrEmpty(m.getCountry()) || Strings.isNullOrEmpty(m.getCity()))
+                    .forEach(m -> {
+                        m.setCountry(userPreferences.getCountry());
+                        m.setCity(userPreferences.getCity());
+                        outsideMealRepository.save(m);
+                    });
+        }
+
         return userDto;
     }
 
