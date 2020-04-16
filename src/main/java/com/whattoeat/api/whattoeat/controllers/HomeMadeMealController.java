@@ -70,8 +70,10 @@ public class HomeMadeMealController {
         HomeMadeMeal meal = mapper.createFromDTO(homeMadeMealDto);
         meal.setUserId(userId);
         User user = userRepository.findOne(userId);
-        meal.setCountry(user.getCountry());
-        meal.setCity(user.getCity());
+        if (user != null) {
+            meal.setCountry(user.getCountry());
+            meal.setCity(user.getCity());
+        }
 
         if (!StringUtils.isEmpty(homeMadeMealDto.getPhotoContent())) {
             String imageUrl = imageUploadService.uploadImage(meal.getId(), homeMadeMealDto.getPhotoContent(), IMAGE_FOLDER_NAME);

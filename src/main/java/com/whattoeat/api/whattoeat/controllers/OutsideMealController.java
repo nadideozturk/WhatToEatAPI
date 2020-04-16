@@ -69,8 +69,10 @@ public class OutsideMealController {
         OutsideMeal meal = mapper.createFromDTO(outsideMealDto);
         meal.setUserId(userId);
         User user = userRepository.findOne(userId);
-        meal.setCountry(user.getCountry());
-        meal.setCity(user.getCity());
+        if (user != null) {
+            meal.setCountry(user.getCountry());
+            meal.setCity(user.getCity());
+        }
 
         if(!StringUtils.isEmpty(outsideMealDto.getPhotoContent())){
             String imageUrl = imageUploadService.uploadImage(meal.getId(), outsideMealDto.getPhotoContent(), IMAGE_FOLDER_NAME);
