@@ -1,5 +1,6 @@
 package com.whattoeat.api.whattoeat.controllers;
 
+import com.google.common.base.Strings;
 import com.whattoeat.api.whattoeat.domain.HomeMadeMeal;
 import com.whattoeat.api.whattoeat.domain.User;
 import com.whattoeat.api.whattoeat.dto.HomeMadeMealDTO;
@@ -8,16 +9,12 @@ import com.whattoeat.api.whattoeat.exception.NotFoundException;
 import com.whattoeat.api.whattoeat.mapper.HomeMadeMealMapper;
 import com.whattoeat.api.whattoeat.repository.HomeMadeMealRepository;
 import com.whattoeat.api.whattoeat.repository.UserRepository;
-import com.whattoeat.api.whattoeat.service.ImageUploadService;
+import com.whattoeat.api.whattoeat.service.S3Service;
 import com.whattoeat.api.whattoeat.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @RequestMapping("/homemademeals")
 @RestController
@@ -36,7 +33,7 @@ public class HomeMadeMealController {
     private UserService userService;
 
     @Autowired
-    private ImageUploadService imageUploadService;
+    private S3Service s3Service;
 
     private final String IMAGE_FOLDER_NAME = "whattoeat/homemademeals";
 
@@ -75,10 +72,13 @@ public class HomeMadeMealController {
             meal.setCity(user.getCity());
         }
 
-        if (!StringUtils.isEmpty(homeMadeMealDto.getPhotoContent())) {
-            String imageUrl = imageUploadService.uploadImage(meal.getId(), homeMadeMealDto.getPhotoContent(), IMAGE_FOLDER_NAME);
-            meal.setPhotoUrl(imageUrl);
+        if (!Strings.isNullOrEmpty(homeMadeMealDto.getPhotoContent())) {
+            final byte[] decodedImage = Base64.getMimeDecoder().decode(homeMadeMealDto.getPhotoContent());
+            final String imageFilename = UUID.randomUUID().toString() + ".jpg";
+            final String photoUrl = s3Service.uploadFile(decodedImage, "images/" + imageFilename);
+            meal.setPhotoUrl(photoUrl);
         }
+
         if (meal.getLastEatenDate() == null) {
             meal.setLastEatenDate(new Date());
         }
@@ -87,7 +87,7 @@ public class HomeMadeMealController {
     }
 
     @RequestMapping(value = "", method = RequestMethod.PUT)
-    public void updateMeal(@RequestBody HomeMadeMealDTO homeMadeMealDto) {
+    public HomeMadeMealDTO updateMeal(@RequestBody HomeMadeMealDTO homeMadeMealDto) {
         String userId = userService.getUserID();
         HomeMadeMeal meal = mapper.fromDTO(homeMadeMealDto);
         HomeMadeMeal existingMeal = homeMadeMealRepository.findOne(meal.getId());
@@ -98,11 +98,17 @@ public class HomeMadeMealController {
             throw new AuthenticationException();
         }
         meal.setUserId(userId);
-        if (!homeMadeMealDto.getPhotoContent().equals("Empty")) {
-            String imageUrl = imageUploadService.uploadImage(meal.getId(), homeMadeMealDto.getPhotoContent(), IMAGE_FOLDER_NAME);
-            meal.setPhotoUrl(imageUrl);
+
+        if (!Strings.isNullOrEmpty(homeMadeMealDto.getPhotoContent())) {
+            final byte[] decodedImage = Base64.getMimeDecoder().decode(homeMadeMealDto.getPhotoContent());
+            final String imageFilename = UUID.randomUUID().toString() + ".jpg";
+            final String photoUrl = s3Service.uploadFile(decodedImage, "images/" + imageFilename);
+            meal.setPhotoUrl(photoUrl);
         }
+
         homeMadeMealRepository.save(meal);
+
+        return mapper.toDTO(meal);
     }
 
     @RequestMapping(value = "/{mealId}", method = RequestMethod.DELETE)
@@ -115,7 +121,7 @@ public class HomeMadeMealController {
         if (!meal.getUserId().equals(userId)) {
             throw new AuthenticationException();
         }
-        imageUploadService.deleteImage(mealId, IMAGE_FOLDER_NAME);
+        // imageUploadService.deleteImage(mealId, IMAGE_FOLDER_NAME);
         homeMadeMealRepository.delete(mealId);
     }
 }
